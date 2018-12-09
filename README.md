@@ -22,14 +22,15 @@ run (OSX. XQuartz)
  - Docker (tested on 18.09.0)
 
 ```bash
-# run this in a separate window
-socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\"
+# ensure socat is running
+(lsof -nP -i4TCP:6000 | tail -n1 | awk '{ print $1 }' | grep -q socat) || socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &
 
-export IP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
+# grab local ip
+export LOCALIP=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}')
 
 docker run \
   --rm \
-  -e "DISPLAY=$IP:0" \
+  -e "DISPLAY=$LOCALIP:0" \
   -ti \
   pemcconnell/ettercap-graphical:latest
 ```
